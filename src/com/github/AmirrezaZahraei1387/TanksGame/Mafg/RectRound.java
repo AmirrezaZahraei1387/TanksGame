@@ -52,14 +52,14 @@ public class RectRound {
     public void update(AffineTransform t){
         trect = new Polygon();
 
-        Point2D p0 = new Point2D.Double();
-        t.transform(new Point2D.Double(rect.x, rect.y + rect.height), p0);
-        Point2D p1 = new Point2D.Double();
-        t.transform(new Point2D.Double(rect.x, rect.y), p1);
-        Point2D p2 = new Point2D.Double();
-        t.transform(new Point2D.Double(rect.x + rect.width, rect.y), p2);
-        Point2D p3 = new Point2D.Double();
-        t.transform(new Point2D.Double(rect.x + rect.width, rect.y + rect.height), p3);
+        Point p0 = new Point();
+        t.transform(new Point(rect.x, rect.y + rect.height), p0);
+        Point p1 = new Point();
+        t.transform(new Point(rect.x, rect.y), p1);
+        Point p2 = new Point();
+        t.transform(new Point(rect.x + rect.width, rect.y), p2);
+        Point p3 = new Point();
+        t.transform(new Point(rect.x + rect.width, rect.y + rect.height), p3);
 
         trect.addPoint((int) p0.getX(), (int) p0.getY());
         trect.addPoint((int) p1.getX(), (int) p1.getY());
