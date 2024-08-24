@@ -1,7 +1,5 @@
 package com.github.AmirrezaZahraei1387.comers;
 
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -14,29 +12,29 @@ and can be rotated.
  */
 public class RectR2D {
 
-    private final int[] xpoints;
-    private final int[] ypoints;
+    private final double[] xpoints;
+    private final double[] ypoints;
 
     {
-        xpoints = new int[4];
-        ypoints = new int[4];
+        xpoints = new double[4];
+        ypoints = new double[4];
     }
 
-    public RectR2D(Rectangle rect) {
-        xpoints[0] = rect.x;
-        ypoints[0] = rect.y;
+    public RectR2D(Rectangle2D rect) {
+        xpoints[0] = rect.getX();
+        ypoints[0] = rect.getY();
 
-        xpoints[1] = rect.x + rect.width;
-        ypoints[1] = rect.y;
+        xpoints[1] = rect.getX() + rect.getWidth();
+        ypoints[1] = rect.getY();
 
-        xpoints[2] = rect.x + rect.width;
-        ypoints[2] = rect.y + rect.height;
+        xpoints[2] = rect.getX() + rect.getWidth();
+        ypoints[2] = rect.getY() + rect.getHeight();
 
-        xpoints[3] = rect.x;
-        ypoints[3] = rect.y + rect.height;
+        xpoints[3] = rect.getX();
+        ypoints[3] = rect.getY() + rect.getHeight();
     }
 
-    public RectR2D(int[] _xpoints, int[] _ypoints) {
+    public RectR2D(double[] _xpoints, double[] _ypoints) {
 
         if(_xpoints.length != 4 || _ypoints.length != 4)
             throw new IndexOutOfBoundsException("the RectR2D requires exactly 4 points");
@@ -44,8 +42,8 @@ public class RectR2D {
         System.arraycopy(_xpoints, 0, xpoints, 0, 4);
         System.arraycopy(_ypoints, 0, ypoints, 0, 4);
 
-        int dist1 = parDist(xpoints[0], ypoints[0], xpoints[1], ypoints[1]);
-        int dist2 = parDist(xpoints[0], ypoints[0], xpoints[2], ypoints[2]);
+        double dist1 = parDist(xpoints[0], ypoints[0], xpoints[1], ypoints[1]);
+        double dist2 = parDist(xpoints[0], ypoints[0], xpoints[2], ypoints[2]);
 
         if(dist1 > dist2){
             swap(xpoints, 1, 2);
@@ -88,7 +86,7 @@ public class RectR2D {
         return false;
     }
 
-    public boolean contains(int x, int y){
+    public boolean contains(double x, double y){
 
         // going through corresponding segments
         boolean orit01 = getPointOrient(x, y, xpoints[0], ypoints[0], xpoints[1], ypoints[1]);
@@ -137,12 +135,16 @@ public class RectR2D {
                 xpoints[3], ypoints[3]);
     }
 
-    private static int parDist(int x1, int y1, int x2, int y2){
+    public Point2D get(int i){
+        return new Point2D.Double(xpoints[i], ypoints[i]);
+    }
+
+    private static double parDist(double x1, double y1, double x2, double y2){
         return Math.abs(x1 - x2) + Math.abs(y1 - y2);
     }
 
-    private static void swap(int[] arr, int i, int j){
-        int temp = arr[i];
+    private static void swap(double[] arr, int i, int j){
+        double temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
     }
@@ -150,9 +152,9 @@ public class RectR2D {
     /*
     returns the orientation of a point about a line.
      */
-    private static boolean getPointOrient(int x, int y,
-                                          int sx1, int sy1,
-                                          int sx2, int sy2){
+    private static boolean getPointOrient(double x, double y,
+                                          double sx1, double sy1,
+                                          double sx2, double sy2){
         x -= sx1;
         y -= sy1;
         sx2 -= sx1;
@@ -161,11 +163,11 @@ public class RectR2D {
         sx1 = 0;
         sy1 = 0;
 
-        int base = sx1 - sx2;
+        double base = sx1 - sx2;
 
         if(base != 0) {
-            double a = (double) (sy1 - sy2) / (sx1 - sx2);
-            int newy = (int) (a * x);
+            double a = (sy1 - sy2) / (sx1 - sx2);
+            double newy = a * x;
 
             return newy > y;
         }else{

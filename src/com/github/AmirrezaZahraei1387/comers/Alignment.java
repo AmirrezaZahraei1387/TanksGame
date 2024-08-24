@@ -5,7 +5,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 /*
-defines the alignment and transformation of an
+defines the alignment of an
 object when is being aligned with another object
 in some context.
  */
@@ -18,13 +18,4 @@ public interface Alignment {
     In case it is not available for the caller it is null.
      */
     Point2D getAlignPoint(Dimension2D dim);
-
-    /*
-    returns the affineTransform for the caller.
-    if there is no need for affineTransformation returns
-    null.
-     */
-    default AffineTransform getAffineTransform() {
-        return null;
-    }
 }
