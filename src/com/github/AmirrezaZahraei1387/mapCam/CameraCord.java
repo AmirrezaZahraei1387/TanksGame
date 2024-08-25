@@ -24,6 +24,7 @@ public class CameraCord {
 
     public void setWindowDim(Dimension size){
         this.windowDim = size;
+        update_origin();
     }
 
     public Dimension getWindowDim(){

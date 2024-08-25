@@ -13,6 +13,8 @@ public abstract class ObjRenderer extends JComponent {
 
     protected static CameraCord gameMap;
 
+    protected ObjRenderer() {}
+
     public static void setGameMap(CameraCord map){
         gameMap = map;
     }
