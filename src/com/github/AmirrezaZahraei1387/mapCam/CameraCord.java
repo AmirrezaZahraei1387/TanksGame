@@ -6,13 +6,21 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 public class CameraCord {
 
     private CameraBase camera;
     private Dimension windowDim;
 
+    private ArrayList<Integer> currGrounds;
+
     private final Rectangle2D bounds;
+
+    private Rectangle2D prev_rect;
+    private AffineTransform prev_transform;
+
+    private boolean hasChanged = true;
 
     public CameraCord(){
         bounds = new Rectangle2D.Double();
@@ -20,6 +28,15 @@ public class CameraCord {
 
     public void setCamera(CameraBase camera){
         this.camera = camera;
+        update_origin();
+    }
+
+    void setCurrGrounds(ArrayList<Integer> inViewGrounds) {
+        this.currGrounds = inViewGrounds;
+    }
+
+    public ArrayList<Integer> getCurrGrounds(){
+        return currGrounds;
     }
 
     public void setWindowDim(Dimension size){
@@ -61,6 +78,10 @@ public class CameraCord {
     the world
      */
     private void update_origin(){
+
+        if(windowDim == null)
+            return;
+
         Point2D wi_al = camera.getWindowAlign();
         Point2D wo_al = camera.getWorldAlign();
 
@@ -68,6 +89,17 @@ public class CameraCord {
         double o_x = wo_al.getX() - wi_al.getX();
         double o_y = wo_al.getY()  - wi_al.getY();
 
-        bounds.setRect(o_x, o_y, windowDim.width, windowDim.height);
+        Rectangle2D rect = new Rectangle2D.Double(o_x, o_y, windowDim.width, windowDim.height);
+
+        if(!rect.equals(bounds) || prev_transform != camera.getTransform()){
+            hasChanged = true;
+            bounds.setRect(o_x, o_y, windowDim.width, windowDim.height);
+        }else{
+            hasChanged = false;
+        }
+    }
+
+    public boolean HasChanged(){
+        return hasChanged;
     }
 }
