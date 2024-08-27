@@ -10,10 +10,8 @@ public class CameraHandler {
     private Camera currCamera;
 
     private Dimension viewSize;
-    private final Dimension worldSize;
 
-    public CameraHandler(Dimension worldSize){
-        this.worldSize = worldSize;
+    public CameraHandler(){
 
         this.currCamera = new StaticCamera(null, new Point(0, 0));
         this.viewSize = null;
@@ -29,10 +27,6 @@ public class CameraHandler {
 
     public void setViewSize(Dimension viewSize) {
         this.viewSize = viewSize;
-    }
-
-    public Dimension getWorldSize() {
-        return worldSize;
     }
 
     public CameraHandlerState getState(){

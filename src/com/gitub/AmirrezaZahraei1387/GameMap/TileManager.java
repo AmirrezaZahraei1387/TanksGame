@@ -5,12 +5,14 @@ import com.gitub.AmirrezaZahraei1387.Camera.CameraHandlerState;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
 
@@ -23,21 +25,23 @@ public class TileManager extends JComponent{
         public TileGB[] stack;
 
         public TileEntry(TileGB groundLayer, TileGB trapLayer){
-            stack[0] = groundLayer;
-            stack[1] = trapLayer;
+
+            stack = new TileGB[]{groundLayer, trapLayer};
         }
     }
 
     private final TileEntry[][] map;
     private final CameraHandler cManager;
     private CameraHandlerState prev_cState;
-    private int tileSize;
+    private final int tileSize;
+    private final Dimension worldSize;
     private Timer timer;
 
-    public TileManager(TileEntry[][] map, CameraHandler cManager, int tileSize){
+    public TileManager(TileEntry[][] map, CameraHandler cManager, int tileSize, Dimension worldSize){
         this.map = map;
         this.cManager = cManager;
         this.tileSize = tileSize;
+        this.worldSize = worldSize;
         prev_cState = new CameraHandlerState();
 
         timer = new Timer(100, new ActionListener() {
@@ -66,11 +70,11 @@ public class TileManager extends JComponent{
         if(x.j < 0)
             x.j = 0;
 
-        if(x.i >= cManager.getWorldSize().width)
-            x.i = cManager.getWorldSize().width - 1;
+        if(x.i >= worldSize.width)
+            x.i = worldSize.width - 1;
 
-        if(x.j >= cManager.getWorldSize().height)
-            x.j = cManager.getWorldSize().height - 1;
+        if(x.j >= worldSize.height)
+            x.j = worldSize.height - 1;
 
         return x;
     }
@@ -86,19 +90,28 @@ public class TileManager extends JComponent{
 
         Rectangle bound = cManager.getBounds();
 
-        ArrayList<TileEntry> tiles = getInBoundTiles(bound);
-        for(TileEntry tileStack : tiles){
-            for(int k = 0; k < tileStack.stack.length; ++k){
-                if(tileStack.stack[k] != null){
+        Position start = translatePos(bound.getLocation());
+        TileEntry[][] tiles = getInBoundTiles(bound);
 
-                    int status = tileStack.stack[k].getStatus();
+        for(int i = 0; i < tiles.length; i++){
+            for(int j = 0; j < tiles[i].length; j++){
+                if(tiles[i][j] != null){
+                    for(int k = 0; k < tiles[i][j].stack.length; k++){
 
-                    if(status == TileGB.ACTIVE) {
-                        tileStack.stack[k].render(g2d);
-                    }else if(status == TileGB.DESTROYED){
-                        tileStack.stack[k] = null;
+                        TileGB tile = tiles[i][j].stack[k];
+
+                        if(tile != null){
+                            if(tile.getStatus() == TileGB.ACTIVE){
+                                AffineTransform prev = g2d.getTransform();
+                                g2d.translate((start.i + i) * tileSize, (start.j + j) * tileSize);
+                                tile.render(g2d);
+                                g2d.setTransform(prev);
+                            }else if(tile.getStatus() == TileGB.DESTROYED){
+                                tiles[i][j].stack[k] = null;
+                            }
+                        }
+
                     }
-
                 }
             }
         }
@@ -108,20 +121,20 @@ public class TileManager extends JComponent{
     returns the tiles that are in the given bound.
     Note that bound is in terms of pixels and need translation.
     */
-    private ArrayList<TileEntry> getInBoundTiles(Rectangle bound){
+    private TileEntry[][] getInBoundTiles(Rectangle bound){
 
         Position s = translatePos(bound.getLocation());
         int w = (bound.width / tileSize) + 2;
         int h = (bound.height / tileSize) + 2;
 
-        w = Math.min(w + s.i, cManager.getWorldSize().width);
-        h = Math.min(h + s.j, cManager.getWorldSize().height);
+        w = Math.min(w + s.i, worldSize.width);
+        h = Math.min(h + s.j, worldSize.height);
 
-        ArrayList<TileEntry> list = new ArrayList<>();
+        TileEntry[][] list = new TileEntry[w - s.i][h - s.j];
 
         for(int i = s.i; i < w; i++){
             for(int j = s.j; j < h; j++){
-                list.add(map[i][j]);
+                list[i - s.i][j - s.j] = map[i][j];
             }
         }
 
