@@ -74,6 +74,14 @@ public class GameGround extends ObjRenderer{
 
     }
 
+    public Dimension getTileSize() {
+        return tileSize;
+    }
+
+    public Dimension getMapSize() {
+        return mapSize;
+    }
+
     public Point translate(int n) {
         return new Point(n / mapSize.width, n % mapSize.width);
     }
@@ -94,7 +102,15 @@ public class GameGround extends ObjRenderer{
         return new Point((int) (x / tileSize.width), (int) (y / tileSize.getWidth()));
     }
 
-    public ArrayList<Integer> getInViewGrounds() {
+    public boolean exist(Point p){
+        if(p.x < 0 || p.y < 0 ||
+                p.x >= mapSize.width ||
+                p.y >= mapSize.height)
+            return false;
+        return map[p.x][p.y] != -1;
+    }
+
+    ArrayList<Integer> getInViewGrounds() {
 
         Rectangle2D bounds = cameraCord.getBounds();
 
