@@ -22,6 +22,10 @@ public interface TileGB {
      */
     int getId();
 
+    /*
+    if it returns true then player a player can enter this tile
+     */
+    boolean isCollisionObj();
 
     byte ACTIVE = 0; // the tile is working, rendering should be preformed regularly.
     byte DESTROYED = 2; // the tile no longer need rendering and can be removed.

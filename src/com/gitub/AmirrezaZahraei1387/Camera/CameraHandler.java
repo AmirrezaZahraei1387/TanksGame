@@ -3,6 +3,7 @@ package com.gitub.AmirrezaZahraei1387.Camera;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
 public class CameraHandler {
@@ -14,9 +15,8 @@ public class CameraHandler {
     public CameraHandler(Dimension worldSize){
         this.worldSize = worldSize;
 
-        this.currCamera = null;
+        this.currCamera = new StaticCamera(null, new Point(0, 0));
         this.viewSize = null;
-
     }
 
     public void setCurrCamera(Camera currCamera) {
@@ -36,15 +36,15 @@ public class CameraHandler {
     }
 
     public CameraHandlerState getState(){
-        if(currCamera == null)
-            return new CameraHandlerState(null, null);
         return new CameraHandlerState(currCamera.getWorldPos(), currCamera.getTransform());
     }
 
-    public CameraHandlerState setGraphics(Graphics2D g2d) {
-        if(currCamera == null)
-            return new CameraHandlerState(null, null);
+    public Rectangle getBounds(){
+        Point p = currCamera.getWorldPos();
+        return new Rectangle(p.x, p.y, viewSize.width, viewSize.height);
+    }
 
+    public CameraHandlerState setGraphics(Graphics2D g2d) {
         Point p = currCamera.getWorldPos();
         g2d.translate(-p.x, -p.y);
 
