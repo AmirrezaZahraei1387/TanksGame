@@ -2,125 +2,95 @@ package com.gitub.AmirrezaZahraei1387.GameMap;
 
 import com.gitub.AmirrezaZahraei1387.Camera.CameraHandler;
 import com.gitub.AmirrezaZahraei1387.Camera.CameraHandlerState;
-import com.gitub.AmirrezaZahraei1387.GameMap.Objects.ObjectIds;
+import com.gitub.AmirrezaZahraei1387.common.MatrixBound;
+import com.gitub.AmirrezaZahraei1387.common.Position;
 
-import javax.swing.JComponent;
-import javax.swing.Timer;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
+import javax.swing.JComponent;
+import javax.swing.Timer;
 
 
-public class TileManager extends JComponent{
+public class TileManager extends JComponent {
 
-    /*
-    each entry consists of two layers.
-     */
-    public static class TileEntry{
-        public TileGB[] stack;
-
-        public TileEntry(TileGB[] stack){
-            if(stack == null)
-                throw new NullPointerException("the Tile Stack can not be null.");
-
-            this.stack = stack;
-        }
-    }
-
-    private final TileEntry[][] map;
-    private final CameraHandler cManager;
-    private CameraHandlerState prev_cState;
+    private final TileStack[][] map;
+    private final Dimension mapDim; //the width and height of the map.
     private final int tileSize;
-    private final Dimension worldSize;
+    private final CameraHandler cam;
+    private CameraHandlerState prev_camState;
+
     private final Timer timer;
 
-    public TileManager(TileEntry[][] map, CameraHandler cManager, int tileSize, Dimension worldSize){
+    private MatrixBound currB;
+
+    public TileManager(TileStack[][] map, Dimension mapDim, int tileSize, CameraHandler cam) {
         this.map = map;
-        this.cManager = cManager;
+        this.mapDim = mapDim;
         this.tileSize = tileSize;
-        this.worldSize = worldSize;
-        prev_cState = new CameraHandlerState();
+        this.cam = cam;
 
-        timer = new Timer(100, e -> {
-            CameraHandlerState new_cState = cManager.getState();
+        prev_camState = new CameraHandlerState();
 
-            if(!new_cState.equals(prev_cState)){
-                prev_cState = new_cState;
-                repaint(1);
+        timer = new Timer(5, _ -> {
+            CameraHandlerState currState = cam.getState();
+
+            if(!currState.equals(prev_camState)){
+                prev_camState = currState;
+                againRepaint();
             }
         });
     }
 
+    public int getTileSize(){
+        return tileSize;
+    }
+
+    public CameraHandler getCameraHandler(){
+        return cam;
+    }
+
+    public Dimension getMapDim(){
+        return mapDim;
+    }
 
     @Override
     public void paintComponent(Graphics _g2d){
         Graphics2D g2d = (Graphics2D) _g2d;
+        cam.setGraphics(g2d);
 
-        // sets this graphics object to draw to view
-        // of the current camera
-        cManager.setGraphics(g2d);
+        if(currB == null)
+            paintMap(g2d);
+        else
+            paintMap(g2d, currB);
+    }
 
-        Rectangle bound = cManager.getBounds();
+    public void againPaint(MatrixBound bound){
+        Rectangle rect = translateBound(bound);
+        currB = bound;
+        repaint(1, rect.x, rect.y, rect.width, rect.height);
+    }
 
-        Position start = translatePos(bound.getLocation());
-        TileEntry[][] tiles = getInBoundTiles(bound);
+    public void againRepaint(){
+        currB = null;
+        repaint(1);
+    }
 
-        for(int i = 0; i < tiles.length; i++){
-            for(int j = 0; j < tiles.length; j++){
-                if(tiles[i][j] != null){
-                    for(int k = 0; k < tiles[i][j].stack.length; k++){
+    public void start(){
+        timer.start();
+    }
 
-                        TileGB tile = tiles[i][j].stack[k];
-
-                        if(tile != null){
-                            if(tile.getStatus() == TileGB.ACTIVE){
-                                AffineTransform prev = g2d.getTransform();
-                                g2d.translate((start.i + i) * tileSize, (start.j + j) * tileSize);
-                                tile.render(g2d);
-                                g2d.setTransform(prev);
-                            }else if(tile.getStatus() == TileGB.DESTROYED){
-                                removeTile(i, j, k);
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
+    public void stop(){
+        timer.stop();
     }
 
     /*
-    returns the tiles that are in the given bound.
-    Note that bound is in terms of pixels and need translation.
-    */
-    private TileEntry[][] getInBoundTiles(Rectangle bound){
-
-        Position s = translatePos(bound.getLocation());
-
-        int w = (bound.width / tileSize) + 1;
-        int h = (bound.height / tileSize) + 1;
-
-        w = Math.min(w + s.i, worldSize.width);
-        h = Math.min(h + s.j, worldSize.height);
-
-        TileEntry[][] list = new TileEntry[w - s.i][h - s.j];
-
-        for(int i = s.i; i < w; i++){
-            for(int j = s.j; j < h; j++){
-                list[i - s.i][j - s.j] = map[i][j];
-            }
-        }
-
-        return list;
-    }
-
-    /*
-    translates a point from graphics space to the tile space
-    */
-    private Position translatePos(Point p){
+    returns the tile the specified point is located.
+    regulates the position if it is out of bounds.
+     */
+    private Position translate(Point p){
         Position x = new  Position(p.x / tileSize, p.y / tileSize);
 
         if(x.i < 0)
@@ -129,73 +99,120 @@ public class TileManager extends JComponent{
         if(x.j < 0)
             x.j = 0;
 
-        if(x.i >= worldSize.width)
-            x.i = worldSize.width - 1;
+        if(x.i >= mapDim.width)
+            x.i = mapDim.width - 1;
 
-        if(x.j >= worldSize.height)
-            x.j = worldSize.height - 1;
+        if(x.j >= mapDim.height)
+            x.j =  mapDim.height - 1;
 
         return x;
     }
 
+    private Rectangle translateBound(MatrixBound bound){
+        Rectangle rect = new Rectangle();
+
+        rect.x = bound.pos.i * tileSize;
+        rect.y = bound.pos.j * tileSize;
+        rect.width = bound.dim.width * tileSize;
+        rect.height = bound.dim.height * tileSize;
+
+        return rect;
+    }
+
     /*
-    removes a tile in the specified position and layer.
+    paints the specified region of the into the camera space.
+    it only draws tiles that are currently contained within the
+    bounding rectangle of camera.
      */
-    private void removeTile(int _i, int _j, int layer){
+    private void paintMap(Graphics2D g2d, MatrixBound bound) {
 
-        int i = _i;
-        int j = _j + 1;
+        Rectangle camBound = cam.getBounds();
 
-        while(true){
-            for(;j < map[i].length; ++j){
-                if(map[i][j] != null) {
-                    TileGB t = map[i][j].stack[layer];
-                    if (t != null) {
-                        if (t.getId() == ObjectIds.REFERENCE) {
-                            Position p = Position.openPos(t.getReference(), worldSize);
-                            int k = t.getLayer();
+        TileStack[][] tiles = inViewTilesCheckAll(bound, camBound);
 
-                            if (p.i != i || p.j != j || k != layer)
-                                break;
-                            else
-                                map[p.i][p.j].stack[k] = null;
-                        }else
-                            break;
-                    }else
-                        break;
-                }else
-                    break;
+        for(int i = 0; i < tiles.length; i++)
+            for(int j = 0; j < tiles.length; j++)
+                if(tiles[i][j] != null)
+                    for(int k = 0; k < tiles[i][j].stack.length; k++){
+
+                        TileGB tile = tiles[i][j].stack[k];
+
+                        if(tile != null)
+                            g2d.drawImage(tile.img,
+                                    (bound.pos.i + i) * tileSize,
+                                    (bound.pos.j + j) * tileSize,
+                                    null);
+                    }
+    }
+
+    private void paintMap(Graphics2D g2d){
+
+        Rectangle camBound = cam.getBounds();
+
+        Position start = translate(camBound.getLocation());
+        TileStack[][] tiles = inViewTilesCam(camBound);
+
+        for(int i = 0; i < tiles.length; i++)
+            for(int j = 0; j < tiles.length; j++)
+                if(tiles[i][j] != null)
+                    for(int k = 0; k < tiles[i][j].stack.length; k++){
+
+                        TileGB tile = tiles[i][j].stack[k];
+
+                        if(tile != null)
+                            g2d.drawImage(tile.img,
+                                    (start.i + i) * tileSize,
+                                    (start.j + j) * tileSize,
+                                    null);
+                    }
+    }
+
+    private TileStack[][] inViewTilesCheckAll(MatrixBound visBound, Rectangle bound){
+        Position s = translate(bound.getLocation());
+
+        int w = (bound.width / tileSize) + 1;
+        int h = (bound.height / tileSize) + 1;
+
+        w = Math.min(w + s.i, mapDim.width);
+        h = Math.min(h + s.j, mapDim.height);
+
+        TileStack[][] list = new TileStack[visBound.dim.width][visBound.dim.height];
+
+        for(int i = 0; i < visBound.dim.width; ++i){
+            for(int j = 0; j < visBound.dim.height; ++j){
+                int _i = i + visBound.pos.i;
+                int _j = j + visBound.pos.j;
+
+                list[i][j] = null;
+
+                if(map[_i][_j] != null){
+                    if(_i >= s.i && _i < w && _j >= s.j && _j < h)
+                        list[i][j] = map[_i][_j];
+                }
+
             }
-
-            j = _j;
-            ++i;
-
-            if(i >= map.length)
-                break;
-            else{
-                if(map[i][j] != null) {
-                    TileGB t = map[i][j].stack[layer];
-                    if (t != null) {
-                        if (t.getId() == ObjectIds.REFERENCE) {
-                            Position p = Position.openPos(t.getReference(), worldSize);
-                            int k = t.getLayer();
-
-                            if (p.i != i || p.j != j || k != layer)
-                                break;
-                            else
-                                map[p.i][p.j].stack[k] = null;
-                        }else
-                            break;
-                    }else
-                        break;
-                }else
-                    break;
-            }
-
-            j += 1;
         }
 
-        map[_i][_j].stack[layer] = null;
+        return list;
+    }
 
+    public TileStack[][] inViewTilesCam(Rectangle bound){
+        Position s = translate(bound.getLocation());
+
+        int w = (bound.width / tileSize) + 1;
+        int h = (bound.height / tileSize) + 1;
+
+        w = Math.min(w + s.i, mapDim.width);
+        h = Math.min(h + s.j, mapDim.height);
+
+        TileStack[][] list = new TileStack[w - s.i][h - s.j];
+
+        for(int i = s.i; i < w; i++){
+            for(int j = s.j; j < h; j++){
+                list[i - s.i][j - s.j] = map[i][j];
+            }
+        }
+
+        return list;
     }
 }

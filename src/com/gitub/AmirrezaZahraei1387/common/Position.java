@@ -1,4 +1,4 @@
-package com.gitub.AmirrezaZahraei1387.GameMap;
+package com.gitub.AmirrezaZahraei1387.common;
 
 import java.awt.Dimension;
 
