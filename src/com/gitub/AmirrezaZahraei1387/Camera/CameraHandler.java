@@ -39,7 +39,7 @@ public class CameraHandler {
     }
 
     public CameraHandlerState getState(){
-        return new CameraHandlerState(currCamera.getWorldPos(), currCamera.getTransform());
+        return new CameraHandlerState(currCamera.getWorldPos(), currCamera.getTransform(), viewSize);
     }
 
     public Dimension getWorldSize(){
@@ -64,7 +64,7 @@ public class CameraHandler {
         if(t != null)
             g2d.setTransform(t);
 
-        return new CameraHandlerState(p, t);
+        return new CameraHandlerState(p, t, viewSize);
     }
 
 }

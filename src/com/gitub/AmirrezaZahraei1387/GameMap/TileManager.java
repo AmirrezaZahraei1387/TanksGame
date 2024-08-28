@@ -34,7 +34,9 @@ public class TileManager extends JComponent {
 
         prev_camState = new CameraHandlerState();
 
-        timer = new Timer(5, _ -> {
+        currB = null;
+
+        timer = new Timer(0, e -> {
             CameraHandlerState currState = cam.getState();
 
             if(!currState.equals(prev_camState)){
@@ -130,8 +132,15 @@ public class TileManager extends JComponent {
 
         TileStack[][] tiles = inViewTilesCheckAll(bound, camBound);
 
+//        int w = tiles.length;
+//        int h = 0;
+//        if(tiles.length > 0)
+//            h = tiles[0].length;
+//
+//        System.out.println(w + " " + h);
+
         for(int i = 0; i < tiles.length; i++)
-            for(int j = 0; j < tiles.length; j++)
+            for(int j = 0; j < tiles[i].length; j++)
                 if(tiles[i][j] != null)
                     for(int k = 0; k < tiles[i][j].stack.length; k++){
 
@@ -152,8 +161,15 @@ public class TileManager extends JComponent {
         Position start = translate(camBound.getLocation());
         TileStack[][] tiles = inViewTilesCam(camBound);
 
+//        int w = tiles.length;
+//        int h = 0;
+//        if(tiles.length > 0)
+//            h = tiles[0].length;
+//
+//        System.out.println(w + " " + h);
+
         for(int i = 0; i < tiles.length; i++)
-            for(int j = 0; j < tiles.length; j++)
+            for(int j = 0; j < tiles[i].length; j++)
                 if(tiles[i][j] != null)
                     for(int k = 0; k < tiles[i][j].stack.length; k++){
 
@@ -163,6 +179,8 @@ public class TileManager extends JComponent {
                             g2d.drawImage(tile.img,
                                     (start.i + i) * tileSize,
                                     (start.j + j) * tileSize,
+                                    //tileSize,
+                                    //tileSize,
                                     null);
                     }
     }
