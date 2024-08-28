@@ -8,7 +8,6 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -83,13 +82,13 @@ public class Main {
         Dimension screenSize = new Dimension(600, 600);
         int tileSize = 60;
         Dimension worldSize = new Dimension(10, 10);
-
+        Dimension worldSize1 = new Dimension(worldSize.width * tileSize, worldSize.height * tileSize);
 
         Grass.setImg(ImageIO.read(new File("data/grass.jpg")), new Dimension(tileSize, tileSize));
-        TileManager.TileEntry eg = new TileManager.TileEntry(new Grass(), null);
+        TileManager.TileEntry eg = new TileManager.TileEntry(new TileGB[]{new Grass()});
 
         Water.setImg(ImageIO.read(new File("data/water.png")), new Dimension(tileSize, tileSize));
-        TileManager.TileEntry ew = new TileManager.TileEntry(new Water(), null);
+        TileManager.TileEntry ew = new TileManager.TileEntry(new TileGB[]{new Water()});
 
         TileManager.TileEntry[][] entries = new TileManager.TileEntry[][]{
                 {ew, ew, ew, ew, ew, ew, ew, ew, ew, ew},
@@ -105,9 +104,9 @@ public class Main {
 
         };
 
-        CameraHandler cameraHandler = new CameraHandler();
+        CameraHandler cameraHandler = new CameraHandler(worldSize1);
+        cameraHandler.setCurrCamera(new StaticCamera(null, new Point(-200, -200)));
         cameraHandler.setViewSize(screenSize);
-        cameraHandler.setCurrCamera(new StaticCamera(null, new Point(100, 100)));
 
         TileManager tileManager = new TileManager(entries, cameraHandler, tileSize, worldSize);
 
