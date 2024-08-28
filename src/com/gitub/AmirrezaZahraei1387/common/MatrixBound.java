@@ -25,6 +25,11 @@ public class MatrixBound {
         this.pos = new Position(i, j);
     }
 
+    public MatrixBound(Position pos){
+        this.pos = pos;
+        this.dim = new Dimension(1, 1);
+    }
+
     public MatrixBound(MatrixBound other){
         this.pos = new Position(other.pos);
         this.dim = new Dimension(other.dim);

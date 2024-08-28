@@ -16,7 +16,7 @@ import javax.swing.Timer;
 
 public class TileManager extends JComponent {
 
-    private final TileStack[][] map;
+    final TileStack[][] map;
     private final Dimension mapDim; //the width and height of the map.
     private final int tileSize;
     private final CameraHandler cam;
@@ -69,13 +69,13 @@ public class TileManager extends JComponent {
             paintMap(g2d, currB);
     }
 
-    public void againPaint(MatrixBound bound){
+    void againPaint(MatrixBound bound){
         Rectangle rect = translateBound(bound);
         currB = bound;
         repaint(1, rect.x, rect.y, rect.width, rect.height);
     }
 
-    public void againRepaint(){
+    void againRepaint(){
         currB = null;
         repaint(1);
     }
