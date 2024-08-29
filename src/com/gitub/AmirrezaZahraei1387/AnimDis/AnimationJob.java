@@ -8,10 +8,7 @@ import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-public class AnimationJob {
-
-
-    private static long counter = 0;
+class AnimationJob implements Comparable<AnimationJob> {
 
     private final Transformation tf;
 
@@ -20,8 +17,7 @@ public class AnimationJob {
     private final Alignment anim_al;
     private final Alignment user_al;
 
-    private final long origin;
-    private long prevTime; // time in future that the anim must play.
+    private long futureTime; // time in future that the anim must play.
     // actual time does not match
     private final Animation anim; // the animation being played
     private int currentFrame;
@@ -31,12 +27,11 @@ public class AnimationJob {
                         Alignment user_al,
                         Transformation tf) {
         this.anim = anim;
-        this.origin = ++counter;
         this.anim_al = anim_al;
         this.user_al = user_al;
         this.tf = tf;
 
-        prevTime = 0;
+        futureTime = 0;
         currentFrame = -1;
     }
 
@@ -47,7 +42,7 @@ public class AnimationJob {
     public void paint(Graphics2D g2d) {
         long currentTime = System.currentTimeMillis();
 
-        if(currentTime - prevTime <= anim.timePerFrame){
+        if(currentTime <= futureTime){
 
             AffineTransform prevT = g2d.getTransform();
             BufferedImage curr_image = anim.images[currentFrame];
@@ -67,7 +62,7 @@ public class AnimationJob {
             g2d.setTransform(prevT);
         }else{
             ++currentFrame;
-            prevTime = currentTime;
+            futureTime += anim.timePerFrame;
         }
     }
 
@@ -75,16 +70,9 @@ public class AnimationJob {
         return currentFrame >= anim.images.length;
     }
 
-    @Override
-    public int hashCode(){
-        // no two animations can have the same origin.
-        return (int) this.origin;
-    }
 
-    public boolean equals(Object other){
-        if(other instanceof AnimationJob j) {
-            return this.origin == j.origin;
-        }
-        return false;
+    @Override
+    public int compareTo(AnimationJob other) {
+        return -Long.compare(this.futureTime, other.futureTime);
     }
 }
