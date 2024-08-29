@@ -45,10 +45,11 @@ public class TileGroup {
 
 
     public void set(int i, int j, BufferedImage img){
-        if(have(i, j)){
-            TileStack stack = tileMan.map[bound.pos.i + i][bound.pos.j + j];
-            stack.stack[layer] = new TileGB(img);
-        }
+        TileStack stack = tileMan.map[bound.pos.i + i][bound.pos.j + j];
+
+        if(stack != null)
+            stack.set(new TileGB(img), layer);
+
     }
 
     public Dimension getDim(){

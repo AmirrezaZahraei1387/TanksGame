@@ -1,5 +1,7 @@
 package com.gitub.AmirrezaZahraei1387.GameMap;
 
+import java.util.Arrays;
+
 public class TileStack {
     public TileGB[] stack;
 
@@ -17,5 +19,17 @@ public class TileStack {
         System.arraycopy(stack, 0, temp, 0, stack.length);
 
         temp[stack.length] = t;
+    }
+
+    public void set(TileGB t, int l){
+        if(l < stack.length) {
+            stack[l] = t;
+        }else{
+
+            TileGB[] temp = new TileGB[l + 1];
+
+            System.arraycopy(stack, 0, temp, 0, stack.length);
+            temp[l] = t;
+        }
     }
 }

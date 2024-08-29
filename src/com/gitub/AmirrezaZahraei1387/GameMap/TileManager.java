@@ -32,7 +32,7 @@ public class TileManager extends JComponent {
         this.tileSize = tileSize;
         this.cam = cam;
 
-        prev_camState = new CameraHandlerState();
+        prev_camState = cam.getState();
 
         currB = null;
 
@@ -132,6 +132,7 @@ public class TileManager extends JComponent {
 
         TileStack[][] tiles = inViewTilesCheckAll(bound, camBound);
 
+//        System.out.println("paint portion");
 //        int w = tiles.length;
 //        int h = 0;
 //        if(tiles.length > 0)
@@ -150,6 +151,8 @@ public class TileManager extends JComponent {
                             g2d.drawImage(tile.img,
                                     (bound.pos.i + i) * tileSize,
                                     (bound.pos.j + j) * tileSize,
+                                    tileSize,
+                                    tileSize,
                                     null);
                     }
     }
@@ -161,6 +164,7 @@ public class TileManager extends JComponent {
         Position start = translate(camBound.getLocation());
         TileStack[][] tiles = inViewTilesCam(camBound);
 
+//        System.out.println("paint all");
 //        int w = tiles.length;
 //        int h = 0;
 //        if(tiles.length > 0)
@@ -179,8 +183,8 @@ public class TileManager extends JComponent {
                             g2d.drawImage(tile.img,
                                     (start.i + i) * tileSize,
                                     (start.j + j) * tileSize,
-                                    //tileSize,
-                                    //tileSize,
+                                    tileSize,
+                                    tileSize,
                                     null);
                     }
     }
@@ -196,6 +200,8 @@ public class TileManager extends JComponent {
 
         TileStack[][] list = new TileStack[visBound.dim.width][visBound.dim.height];
 
+        //System.out.println(s + " " + w + " " + h);
+
         for(int i = 0; i < visBound.dim.width; ++i){
             for(int j = 0; j < visBound.dim.height; ++j){
                 int _i = i + visBound.pos.i;
@@ -210,6 +216,16 @@ public class TileManager extends JComponent {
 
             }
         }
+
+//        for(int i = 0; i < visBound.dim.width; ++i){
+//            for(int j = 0; j < visBound.dim.height; ++j) {
+//                if(list[i][j] == null)
+//                    System.out.print("N ");
+//                else
+//                    System.out.print("Y ");
+//            }
+//            System.out.println("\n");
+//            }
 
         return list;
     }

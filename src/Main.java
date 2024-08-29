@@ -34,7 +34,6 @@ public class Main {
 
         // making the tiles
         BufferedImage _grass = ImageIO.read(new File("data/grass.jpg"));
-        BufferedImage _fire = ImageIO.read(new File("data/Explosion_D.png"));
 
         TileStack[][] map = new TileStack[worldDim.width][worldDim.height];
 
