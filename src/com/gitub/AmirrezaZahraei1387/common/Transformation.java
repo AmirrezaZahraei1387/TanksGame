@@ -9,8 +9,6 @@ public interface Transformation {
     point. if no affine transformation is needed at that moment
     return null.
      */
-    default AffineTransform getTransform(){
-        return null;
-    };
+    default AffineTransform getTransform(){return null;};
 
 }

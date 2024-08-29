@@ -56,13 +56,13 @@ public class TileGroup {
         return bound.dim;
     }
 
-    public void repaint(Position p){
+    public void againPaint(Position p){
         p.i += bound.pos.i;
         p.j += bound.pos.j;
         tileMan.againPaint(new MatrixBound(p));
     }
 
-    public void repaint(MatrixBound p){
+    public void againPaint(MatrixBound p){
         p.pos.i += bound.pos.i;
         p.pos.j += bound.pos.j;
         tileMan.againPaint(p);

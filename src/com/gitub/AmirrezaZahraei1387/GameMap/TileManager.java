@@ -41,7 +41,7 @@ public class TileManager extends JComponent {
 
             if(!currState.equals(prev_camState)){
                 prev_camState = currState;
-                againRepaint();
+                againPaint();
             }
         });
     }
@@ -60,6 +60,7 @@ public class TileManager extends JComponent {
 
     @Override
     public void paintComponent(Graphics _g2d){
+        //super.paintComponent(_g2d);
         Graphics2D g2d = (Graphics2D) _g2d;
         cam.setGraphics(g2d);
 
@@ -69,15 +70,26 @@ public class TileManager extends JComponent {
             paintMap(g2d, currB);
     }
 
-    void againPaint(MatrixBound bound){
-        Rectangle rect = translateBound(bound);
-        currB = bound;
-        repaint(1, rect.x, rect.y, rect.width, rect.height);
+    @Override
+    public void repaint(long tm, int x, int y, int w, int h){
+        Rectangle rect = new Rectangle(x, y, w, h);
+        currB = translateBound(rect);
+        super.repaint(tm, rect.x, rect.y, rect.width, rect.height);
     }
 
-    void againRepaint(){
+    @Override
+    public void repaint(long tm){
         currB = null;
-        repaint(1);
+        super.repaint(tm);
+    }
+
+    void againPaint(MatrixBound bound){
+        Rectangle rect = translateBound(bound);
+        this.repaint(1, rect.x, rect.y, rect.width, rect.height);
+    }
+
+    void againPaint(){
+        this.repaint(1);
     }
 
     public void start(){
@@ -89,9 +101,9 @@ public class TileManager extends JComponent {
     }
 
     /*
-    returns the tile the specified point is located.
-    regulates the position if it is out of bounds.
-     */
+        returns the tile the specified point is located.
+        regulates the position if it is out of bounds.
+         */
     private Position translate(Point p){
         Position x = new  Position(p.x / tileSize, p.y / tileSize);
 
@@ -119,6 +131,18 @@ public class TileManager extends JComponent {
         rect.height = bound.dim.height * tileSize;
 
         return rect;
+    }
+
+    private MatrixBound translateBound(Rectangle bound){
+        Position s = translate(bound.getLocation());
+
+        int w = (bound.width / tileSize) + 1;
+        int h = (bound.height / tileSize) + 1;
+
+        w = Math.min(w + s.i, mapDim.width);
+        h = Math.min(h + s.j, mapDim.height);
+
+        return new MatrixBound(s.i, s.j, w, h);
     }
 
     /*
@@ -190,13 +214,8 @@ public class TileManager extends JComponent {
     }
 
     private TileStack[][] inViewTilesCheckAll(MatrixBound visBound, Rectangle bound){
-        Position s = translate(bound.getLocation());
 
-        int w = (bound.width / tileSize) + 1;
-        int h = (bound.height / tileSize) + 1;
-
-        w = Math.min(w + s.i, mapDim.width);
-        h = Math.min(h + s.j, mapDim.height);
+        MatrixBound b = translateBound(bound);
 
         TileStack[][] list = new TileStack[visBound.dim.width][visBound.dim.height];
 
@@ -210,7 +229,7 @@ public class TileManager extends JComponent {
                 list[i][j] = null;
 
                 if(map[_i][_j] != null){
-                    if(_i >= s.i && _i < w && _j >= s.j && _j < h)
+                    if(_i >= b.pos.i && _i < b.dim.width && _j >= b.pos.j && _j < b.dim.height)
                         list[i][j] = map[_i][_j];
                 }
 
@@ -230,22 +249,26 @@ public class TileManager extends JComponent {
         return list;
     }
 
-    public TileStack[][] inViewTilesCam(Rectangle bound){
-        Position s = translate(bound.getLocation());
+    private TileStack[][] inViewTilesCam(Rectangle bound){
+        MatrixBound b = translateBound(bound);
 
-        int w = (bound.width / tileSize) + 1;
-        int h = (bound.height / tileSize) + 1;
+        TileStack[][] list = new TileStack[b.dim.width - b.pos.i][b.dim.height - b.pos.j];
 
-        w = Math.min(w + s.i, mapDim.width);
-        h = Math.min(h + s.j, mapDim.height);
-
-        TileStack[][] list = new TileStack[w - s.i][h - s.j];
-
-        for(int i = s.i; i < w; i++){
-            for(int j = s.j; j < h; j++){
-                list[i - s.i][j - s.j] = map[i][j];
+        for(int i = b.pos.i; i < b.dim.width; i++){
+            for(int j = b.pos.j; j < b.dim.height; j++){
+                list[i - b.pos.i][j - b.pos.j] = map[i][j];
             }
         }
+
+//        for(int i = 0; i < list.length; ++i){
+//            for(int j = 0; j < list[i].length; ++j) {
+//                if(list[i][j] == null)
+//                    System.out.print("N ");
+//                else
+//                    System.out.print("Y ");
+//            }
+//            System.out.println("\n");
+//        }
 
         return list;
     }

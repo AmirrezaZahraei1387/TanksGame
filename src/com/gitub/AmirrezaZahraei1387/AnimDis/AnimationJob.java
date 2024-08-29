@@ -1,10 +1,12 @@
 package com.gitub.AmirrezaZahraei1387.AnimDis;
 
+import com.gitub.AmirrezaZahraei1387.Camera.CameraHandler;
 import com.gitub.AmirrezaZahraei1387.common.Alignment;
 import com.gitub.AmirrezaZahraei1387.common.Transformation;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -31,48 +33,53 @@ class AnimationJob implements Comparable<AnimationJob> {
         this.user_al = user_al;
         this.tf = tf;
 
-        futureTime = 0;
-        currentFrame = -1;
+        futureTime = -1;
+        currentFrame = 0;
     }
 
     /*
     the given graphics2D is assumed to be
     set to the appropriate camera view.
      */
-    public void paint(Graphics2D g2d) {
+    public void paint(Graphics2D g2d, CameraHandler cam) {
         long currentTime = System.currentTimeMillis();
+        paintFrame(g2d, cam);
 
-        if(currentTime <= futureTime){
-
-            AffineTransform prevT = g2d.getTransform();
-            BufferedImage curr_image = anim.images[currentFrame];
-
-            Point user_a = user_al.getAlignment(curr_image.getWidth(), curr_image.getHeight());
-            prevT.transform(user_a, user_a);  // transforming the point to window space
-            Point anim_a = anim_al.getAlignment(curr_image.getWidth(), curr_image.getHeight());
-
-            g2d.translate(anim_a.x - user_a.x, anim_a.y - user_a.y);
-            AffineTransform t = tf.getTransform();
-
-            if(t != null)
-                g2d.transform(t);
-
-            g2d.drawImage(anim.images[currentFrame],0, 0 , null);
-
-            g2d.setTransform(prevT);
-        }else{
+        if(currentTime >= futureTime) {
             ++currentFrame;
-            futureTime += anim.timePerFrame;
+            futureTime = currentTime + anim.timePerFrame;
         }
+
     }
 
     public boolean idDone(){
         return currentFrame >= anim.images.length;
     }
 
+    public long getFutureTime(){
+        return futureTime;
+    }
 
     @Override
     public int compareTo(AnimationJob other) {
-        return -Long.compare(this.futureTime, other.futureTime);
+        return Long.compare(this.futureTime, other.futureTime);
+    }
+
+    private void paintFrame(Graphics2D g2d, CameraHandler cam) {
+        AffineTransform prevT = g2d.getTransform();
+        BufferedImage curr_image = anim.images[currentFrame];
+
+        Point user_a = user_al.getAlignment(0, 0);
+        Point anim_a = anim_al.getAlignment(curr_image.getWidth(), curr_image.getHeight());
+
+        g2d.translate( user_a.x -anim_a.x,  user_a.y - anim_a.y);
+        AffineTransform t = tf.getTransform();
+
+        if(t != null)
+            g2d.transform(t);
+
+        g2d.drawImage(anim.images[currentFrame],0, 0 , null);
+
+        g2d.setTransform(prevT);
     }
 }
