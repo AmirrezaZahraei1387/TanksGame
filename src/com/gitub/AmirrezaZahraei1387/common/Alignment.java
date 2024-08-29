@@ -1,6 +1,5 @@
 package com.gitub.AmirrezaZahraei1387.common;
 
-import java.awt.Dimension;
 import java.awt.Point;
 
 public interface Alignment {

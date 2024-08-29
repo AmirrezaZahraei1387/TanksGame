@@ -1,12 +1,10 @@
 package com.gitub.AmirrezaZahraei1387.AnimDis;
 
-import com.gitub.AmirrezaZahraei1387.Camera.CameraHandler;
 import com.gitub.AmirrezaZahraei1387.common.Alignment;
 import com.gitub.AmirrezaZahraei1387.common.Transformation;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -41,9 +39,9 @@ class AnimationJob implements Comparable<AnimationJob> {
     the given graphics2D is assumed to be
     set to the appropriate camera view.
      */
-    public void paint(Graphics2D g2d, CameraHandler cam) {
+    public void paint(Graphics2D g2d) {
         long currentTime = System.currentTimeMillis();
-        paintFrame(g2d, cam);
+        paintFrame(g2d);
 
         if(currentTime >= futureTime) {
             ++currentFrame;
@@ -65,7 +63,7 @@ class AnimationJob implements Comparable<AnimationJob> {
         return Long.compare(this.futureTime, other.futureTime);
     }
 
-    private void paintFrame(Graphics2D g2d, CameraHandler cam) {
+    private void paintFrame(Graphics2D g2d) {
         AffineTransform prevT = g2d.getTransform();
         BufferedImage curr_image = anim.images[currentFrame];
 

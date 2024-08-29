@@ -53,9 +53,8 @@ public class CameraHandler {
 
     /*
     sets the given graphics to draw into the camera view.
-    returns the new state of the camera.
      */
-    public CameraHandlerState setGraphics(Graphics2D g2d) {
+    public void setGraphics(Graphics2D g2d) {
         Point p = currCamera.getWorldPos();
         g2d.translate(-p.x, -p.y);
 
@@ -63,8 +62,6 @@ public class CameraHandler {
 
         if(t != null)
             g2d.setTransform(t);
-
-        return new CameraHandlerState(p, t, viewSize);
     }
 
 }

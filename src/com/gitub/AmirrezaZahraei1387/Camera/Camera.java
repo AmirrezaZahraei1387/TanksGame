@@ -12,5 +12,5 @@ public interface Camera {
     // returns an optional transformation to be applied to the
     // points.
     // can be useful to implement zooming and other effects.
-    default AffineTransform getTransform(){return null;};
+    default AffineTransform getTransform(){return null;}
 }

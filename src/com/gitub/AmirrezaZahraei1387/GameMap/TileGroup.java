@@ -29,8 +29,7 @@ public class TileGroup {
         TileStack stack = tileMan.map[bound.pos.i + i][bound.pos.j + j];
 
         if(stack != null)
-            if(stack.stack.length > layer)
-                return true;
+            return stack.stack.length > layer;
         return false;
     }
 

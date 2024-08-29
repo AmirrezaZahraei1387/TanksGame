@@ -5,7 +5,6 @@ import com.gitub.AmirrezaZahraei1387.Camera.CameraHandlerState;
 import com.gitub.AmirrezaZahraei1387.common.Alignment;
 import com.gitub.AmirrezaZahraei1387.common.Transformation;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.PriorityQueue;
@@ -59,7 +58,7 @@ public class AnimationExecutor extends JComponent {
             AnimationJob job = jobs.remove();
 
             if(!job.idDone()){
-                job.paint(g2d, cam);
+                job.paint(g2d);
                 queue.add(job);
             }
 
