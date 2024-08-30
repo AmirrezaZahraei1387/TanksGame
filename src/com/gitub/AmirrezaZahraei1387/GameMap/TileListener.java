@@ -1,10 +1,7 @@
 package com.gitub.AmirrezaZahraei1387.GameMap;
 
-public interface TileListener {
+import java.awt.Graphics2D;
 
-    /*
-    called whenever this object collides with a player.
-     */
-    //TODO: add the player parameter(s) once player is implemented
-    void onCollide();
+public interface TileListener {
+    default public void draw(int i, Graphics2D g2d){}
 }

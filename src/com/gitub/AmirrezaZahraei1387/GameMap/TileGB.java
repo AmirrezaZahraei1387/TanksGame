@@ -8,15 +8,45 @@ one tile is represented through a reference to
 a BufferedImage
  */
 public class TileGB {
-    public BufferedImage img;
-    public TileListener listener;
 
-    public TileGB(BufferedImage img, TileListener listener){
-        this.img = img;
-        this.listener = listener;
+    private byte id;
+    private int index;
+
+    public TileGB(byte id, int index){
+        this.id = id;
+        this.index = index;
     }
 
-    public TileGB(BufferedImage img){
-        this(img, null);
+    public byte getId() {
+        return id;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setId(byte id, int index) {
+        this.id = id;
+        this.index = index;
+    }
+
+    public void makeReference(){
+        this.index = -this.index;
+    }
+
+    public void clear(){
+        this.index = 0;
+    }
+
+    public boolean isReference(){
+        return this.index < 0;
+    }
+
+    public boolean isCleared(){
+        return this.index == 0;
+    }
+
+    public boolean isOk(){
+        return this.index > 0;
     }
 }

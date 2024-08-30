@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
@@ -21,16 +22,18 @@ public class TileManager extends JComponent {
     private final int tileSize;
     private final CameraHandler cam;
     private CameraHandlerState prev_camState;
+    private TileListener[] listeners;
 
     private final Timer timer;
 
     private MatrixBound currB;
 
-    public TileManager(TileStack[][] map, Dimension mapDim, int tileSize, CameraHandler cam) {
+    public TileManager(TileStack[][] map, TileListener[] listeners, Dimension mapDim, int tileSize, CameraHandler cam) {
         this.map = map;
         this.mapDim = mapDim;
         this.tileSize = tileSize;
         this.cam = cam;
+        this.listeners = listeners;
 
         prev_camState = cam.getState();
 
@@ -171,13 +174,13 @@ public class TileManager extends JComponent {
 
                         TileGB tile = tiles[i][j].stack[k];
 
-                        if(tile != null)
-                            g2d.drawImage(tile.img,
-                                    (bound.pos.i + i) * tileSize,
-                                    (bound.pos.j + j) * tileSize,
-                                    tileSize,
-                                    tileSize,
-                                    null);
+                        if(tile != null) {
+                            AffineTransform p = g2d.getTransform();
+                            g2d.translate((bound.pos.i + i) * tileSize,
+                                    (bound.pos.j + j) * tileSize);
+                            drawTile(tile, g2d);
+                            g2d.setTransform(p);
+                        }
                     }
     }
 
@@ -203,14 +206,24 @@ public class TileManager extends JComponent {
 
                         TileGB tile = tiles[i][j].stack[k];
 
-                        if(tile != null)
-                            g2d.drawImage(tile.img,
-                                    (start.i + i) * tileSize,
-                                    (start.j + j) * tileSize,
-                                    tileSize,
-                                    tileSize,
-                                    null);
+                        if(tile != null){
+                            AffineTransform p = g2d.getTransform();
+                            g2d.translate((start.i + i) * tileSize,
+                                    (start.j + j) * tileSize);
+                            drawTile(tile, g2d);
+                            g2d.setTransform(p);
+                        }
                     }
+    }
+
+    private void drawTile(TileGB tile, Graphics2D g2d){
+        if(tile.isOk()) {
+
+            byte id = tile.getId();
+            int i = tile.getIndex();
+
+            listeners[id].draw(i, g2d);
+        }
     }
 
     private TileStack[][] inViewTilesCheckAll(MatrixBound visBound, Rectangle bound){
